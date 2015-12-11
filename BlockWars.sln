@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual C# Express 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockWars", "BlockWars\BlockWars\BlockWars.csproj", "{057919A4-F860-4856-8D2B-304A9C3D5D8E}"
 EndProject
-Project("{96E2B04D-8817-42C6-938A-82C39BA4D311}") = "BlockWarsContent", "BlockWars\BlockWarsContent\BlockWarsContent.contentproj", "{8A4341EB-B9EC-45F1-B5CB-134DB05AF63A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockWarsContent", "BlockWars\BlockWarsContent\BlockWarsContent.contentproj", "{8A4341EB-B9EC-45F1-B5CB-134DB05AF63A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImportTemplates", "ImportTemplates\ImportTemplates.csproj", "{F556D04F-1225-4781-A71B-34E9468BC8A6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,6 +19,10 @@ Global
 		{057919A4-F860-4856-8D2B-304A9C3D5D8E}.Release|x86.Build.0 = Release|x86
 		{8A4341EB-B9EC-45F1-B5CB-134DB05AF63A}.Debug|x86.ActiveCfg = Debug|x86
 		{8A4341EB-B9EC-45F1-B5CB-134DB05AF63A}.Release|x86.ActiveCfg = Release|x86
+		{F556D04F-1225-4781-A71B-34E9468BC8A6}.Debug|x86.ActiveCfg = Debug|x86
+		{F556D04F-1225-4781-A71B-34E9468BC8A6}.Debug|x86.Build.0 = Debug|x86
+		{F556D04F-1225-4781-A71B-34E9468BC8A6}.Release|x86.ActiveCfg = Release|x86
+		{F556D04F-1225-4781-A71B-34E9468BC8A6}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

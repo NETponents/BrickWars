@@ -42,24 +42,44 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MenuItem.spritefont">
+    <Compile Include="Fonts\MenuItem.spritefont">
       <Name>MenuItem</Name>
       <Importer>FontDescriptionImporter</Importer>
       <Processor>FontDescriptionProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="debug.spritefont">
+    <Compile Include="Fonts\debug.spritefont">
       <Name>debug</Name>
       <Importer>FontDescriptionImporter</Importer>
       <Processor>FontDescriptionProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="coreEffects.fx">
+    <Compile Include="Effects\coreEffects.fx">
       <Name>coreEffects</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\ImportTemplates\ImportTemplates.csproj">
+      <Project>{F556D04F-1225-4781-A71B-34E9468BC8A6}</Project>
+      <Name>ImportTemplates</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Maps\Map1.special.xml">
+      <Name>Map1.special</Name>
+      <Importer>XmlImporter</Importer>
+      <Processor>PassThroughProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Maps\Map1.terrain.xml">
+      <Name>Map1.terrain</Name>
+      <Importer>XmlImporter</Importer>
+      <Processor>PassThroughProcessor</Processor>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />

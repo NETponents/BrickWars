@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<XnaContent>
+  <Asset Type="System.Collections.Generic.List[ImportTemplates.BlockRangeTemplate]">
+    <Item>
+      <startPosition>1,0,1</startPosition>
+      <endPosition>21,0,21</endPosition>
+      <Color>0,255,0,255</Color>
+    </Item>
+    <Item>
+      <startPosition>0,1,0</startPosition>
+      <endPosition>0,4,22</endPosition>
+      <Color>0,0,255,255</Color>
+    </Item>
+    <Item>
+      <startPosition>0,1,22</startPosition>
+      <endPosition>22,4,22</endPosition>
+      <Color>0,0,255,255</Color>
+    </Item>
+    <Item>
+      <startPosition>22,1,0</startPosition>
+      <endPosition>22,4,22</endPosition>
+      <Color>0,0,255,255</Color>
+    </Item>
+    <Item>
+      <startPosition>0,1,0</startPosition>
+      <endPosition>22,4,0</endPosition>
+      <Color>0,0,255,255</Color>
+    </Item>
+  </Asset>
+</XnaContent>

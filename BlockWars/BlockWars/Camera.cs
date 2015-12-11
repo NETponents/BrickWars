@@ -39,13 +39,15 @@ namespace BlockWars
         }
         public void addPosition(Vector3 addVector)
         {
-            Matrix cameraRotation = Matrix.CreateRotationX(_pitch) * Matrix.CreateRotationY(_yaw);
+            //Matrix cameraRotation = Matrix.CreateRotationX(_pitch) * Matrix.CreateRotationY(_yaw);
+            Matrix cameraRotation = Matrix.CreateRotationY(_yaw);
             Vector3 rotatedVector = Vector3.Transform(addVector, cameraRotation);
             _position += rotatedVector;
         }
         public void addPosition(Vector3 addVector, float moveSpeed)
         {
-            Matrix cameraRotation = Matrix.CreateRotationX(_yaw) * Matrix.CreateRotationY(_pitch);
+            //Matrix cameraRotation = Matrix.CreateRotationX(_pitch) * Matrix.CreateRotationY(_yaw);
+            Matrix cameraRotation = Matrix.CreateRotationY(_yaw);
             Vector3 rotatedVector = Vector3.Transform(addVector, cameraRotation);
             _position += moveSpeed * rotatedVector;
         }
@@ -152,7 +154,7 @@ namespace BlockWars
         #endregion
 
         #region util
-        public string ToString()
+        public override string ToString()
         {
             return String.Format("POS({0}:{1}:{2}) YAW({3}) PITCH({4})", _position.X, _position.Y, _position.Z, _yaw, _pitch);
         }
