@@ -23,12 +23,18 @@ namespace BlockWars
                     return (1.0f - size) / 2.0f;
                 }
             }
+            public bool userRemovable;
+            public float health;
+            public string name;
 
             public Block()
             {
                 position = new Vector3(0, 0, 0);
                 color = Color.Red;
                 size = 1.0f;
+                userRemovable = true;
+                health = 100.0f;
+                name = "Basic Block";
                 updateVerticeList();
             }
             public Block(Vector3 rootPosition)
@@ -36,6 +42,9 @@ namespace BlockWars
                 position = rootPosition;
                 color = Color.Red;
                 size = 1.0f;
+                userRemovable = true;
+                health = 100.0f;
+                name = "Basic Block";
                 updateVerticeList();
             }
             public Block(Vector3 rootPosition, Color cubeColor)
@@ -43,6 +52,9 @@ namespace BlockWars
                 position = rootPosition;
                 color = cubeColor;
                 size = 1.0f;
+                userRemovable = true;
+                health = 100.0f;
+                name = "Basic Block";
                 updateVerticeList();
             }
             public Block(Vector3 rootPosition, Color cubeColor, float lSize)
@@ -50,6 +62,39 @@ namespace BlockWars
                 position = rootPosition;
                 color = cubeColor;
                 size = lSize;
+                userRemovable = true;
+                health = 100.0f;
+                name = "Basic Block";
+                updateVerticeList();
+            }
+            public Block(Vector3 rootPosition, Color cubeColor, float lSize, bool isUserRemovable)
+            {
+                position = rootPosition;
+                color = cubeColor;
+                size = lSize;
+                userRemovable = isUserRemovable;
+                health = 100.0f;
+                name = "Basic Block";
+                updateVerticeList();
+            }
+            public Block(Vector3 rootPosition, Color cubeColor, float lSize, bool isUserRemovable, float blockHealth)
+            {
+                position = rootPosition;
+                color = cubeColor;
+                size = lSize;
+                userRemovable = isUserRemovable;
+                health = blockHealth;
+                name = "Basic Block";
+                updateVerticeList();
+            }
+            public Block(Vector3 rootPosition, Color cubeColor, float lSize, bool isUserRemovable, float blockHealth, string blockName)
+            {
+                position = rootPosition;
+                color = cubeColor;
+                size = lSize;
+                userRemovable = isUserRemovable;
+                health = blockHealth;
+                name = blockName;
                 updateVerticeList();
             }
 
@@ -225,6 +270,19 @@ namespace BlockWars
                 else
                 {
                     return null;
+                }
+            }
+
+            public bool addDamage(float damage)
+            {
+                health -= damage;
+                if (health <= 0)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
                 }
             }
 

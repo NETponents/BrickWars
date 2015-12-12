@@ -25,6 +25,9 @@ namespace BlockWars
 
         private SpriteFont _sf_menuitem;
         private SpriteFont _sf_debug;
+        private SpriteFont _sf_crosshair;
+
+        private PlayerAttrib.ToolState cTool = PlayerAttrib.ToolState.selector;
 
         private BasicEffect basicEffect;
         //private Effect coreEffects;
@@ -33,6 +36,12 @@ namespace BlockWars
 
         private List<Blocks.Block> blockList;
         private Blocks.Block cursor;
+
+        string statusItem = "Nothing";
+        float statusHealth = 100.0f;
+
+        string currentBuilder = "Basic Block";
+        int currentBuilderHP = 100;
 
         VertexBuffer vertexBuffer;
         
@@ -46,6 +55,9 @@ namespace BlockWars
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+
+            IsFixedTimeStep = false;
+
             graphics.IsFullScreen = true;
             graphics.PreferredBackBufferWidth = 1680;  // set this value to the desired width of your window
             graphics.PreferredBackBufferHeight = 1050;   // set this value to the desired height of your window
@@ -75,6 +87,7 @@ namespace BlockWars
 
             _sf_menuitem = Content.Load<SpriteFont>("Fonts/MenuItem");
             _sf_debug = Content.Load<SpriteFont>("Fonts/Debug");
+            _sf_crosshair = Content.Load<SpriteFont>("Fonts/CrossHair");
 
             //coreEffects = Content.Load<Effect>("coreEffects");
             basicEffect = new BasicEffect(GraphicsDevice);
@@ -89,7 +102,7 @@ namespace BlockWars
                 Vector3 bPos = new Vector3(Convert.ToInt32(bPosVals[0]), Convert.ToInt32(bPosVals[1]), Convert.ToInt32(bPosVals[2]));
                 string[] bColVals = i.Color.Split(',');
                 Color bCol = new Color((float)Convert.ToDouble(bColVals[0]), (float)Convert.ToDouble(bColVals[1]), (float)Convert.ToDouble(bColVals[2]), (float)Convert.ToDouble(bColVals[3]));
-                blockList.Add(new Blocks.Block(bPos, bCol));
+                blockList.Add(new Blocks.Block(bPos, bCol, 0.999f, true, 100.0f, "Pre-built Structure"));
             }
             /// Terrain blocks
             List<BlockRangeTemplate> blockTLoadList = Content.Load<List<BlockRangeTemplate>>("Maps/Map1.terrain");
@@ -108,7 +121,7 @@ namespace BlockWars
                     {
                         for (int x = (int)tStartPosVec.X; x <= (int)tEndPosVec.X; x++)
                         {
-                            blockList.Add(new Blocks.Block(new Vector3(x, y, z), tCol));
+                            blockList.Add(new Blocks.Block(new Vector3(x, y, z), tCol, 1.0f, false, i.Health, i.Name));
                         }
                     }
                 }
@@ -148,7 +161,6 @@ namespace BlockWars
             // Check for debug enable
             if (Keyboard.GetState().IsKeyDown(Keys.F1))
             {
-                _showDebug = true;
                 if (_showDebug)
                 {
                     _showDebug = false;
@@ -176,72 +188,140 @@ namespace BlockWars
                 }
                 graphics.ApplyChanges();
             }
+            if(Keyboard.GetState().IsKeyDown(Keys.D1))
+            {
+                cTool = PlayerAttrib.ToolState.selector;
+                draw3DCursor();
+            }
+            else if (Keyboard.GetState().IsKeyDown(Keys.D2))
+            {
+                cTool = PlayerAttrib.ToolState.gun;
+                cursor = null;
+            }
+            else if (Keyboard.GetState().IsKeyDown(Keys.D3))
+            {
+                cTool = PlayerAttrib.ToolState.status;
+                cursor = null;
+            }
             if (Mouse.GetState().LeftButton == ButtonState.Pressed)
             {
-                Ray templateCast = GraphicsHelpers.DimensionBlending.CalculateRay(new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2), view, projection, GraphicsDevice.Viewport);
-                float? lowestHitDistance = null;
-                Vector3? lowestBuildDirection = null;
-                Vector3[] directions = { Vector3.Up, Vector3.Down, Vector3.Left, Vector3.Right, Vector3.Forward, Vector3.Backward };
-                for (int i = 0; i < directions.Length; i++)
+                if (cTool == PlayerAttrib.ToolState.selector)
                 {
-                    BoundingBox? j = cursor.getSideCollisionBox(directions[i]);
-                    if (j == null)
+                    Ray templateCast = GraphicsHelpers.DimensionBlending.CalculateRay(new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2), view, projection, GraphicsDevice.Viewport);
+                    float? lowestHitDistance = null;
+                    Vector3? lowestBuildDirection = null;
+                    Vector3[] directions = { Vector3.Up, Vector3.Down, Vector3.Left, Vector3.Right, Vector3.Forward, Vector3.Backward };
+                    for (int i = 0; i < directions.Length; i++)
                     {
-                        continue;
-                    }
-                    float? distance = templateCast.Intersects(j.Value);
-                    if (distance.HasValue)
-                    {
-                        if (!lowestHitDistance.HasValue)
+                        BoundingBox? j = cursor.getSideCollisionBox(directions[i]);
+                        if (j == null)
                         {
-                            lowestHitDistance = distance;
-                            lowestBuildDirection = directions[i];
+                            continue;
                         }
-                        if (distance < lowestHitDistance)
+                        float? distance = templateCast.Intersects(j.Value);
+                        if (distance.HasValue)
                         {
-                            distance = lowestHitDistance;
-                            lowestBuildDirection = directions[i];
+                            if (!lowestHitDistance.HasValue)
+                            {
+                                lowestHitDistance = distance;
+                                lowestBuildDirection = directions[i];
+                            }
+                            if (distance < lowestHitDistance)
+                            {
+                                distance = lowestHitDistance;
+                                lowestBuildDirection = directions[i];
+                            }
+                        }
+                    }
+                    if (lowestBuildDirection.HasValue)
+                    {
+                        Blocks.Block newBlock = new Blocks.Block(cursor.getPosition() + lowestBuildDirection.Value, Color.Black, 0.8f);
+                        BoundingBox newSlot = newBlock.getCollisionBox();
+                        bool collides = false;
+                        foreach (Blocks.Block i in blockList)
+                        {
+                            if (newSlot.Intersects(i.getCollisionBox()))
+                            {
+                                collides = true;
+                            }
+                        }
+                        if (!collides)
+                        {
+                            blockList.Add(new Blocks.Block(newBlock.getPosition(), Color.Black, 0.999f));
                         }
                     }
                 }
-                if (lowestBuildDirection.HasValue)
+                else
                 {
-                    Blocks.Block newBlock = new Blocks.Block(cursor.getPosition() + lowestBuildDirection.Value, Color.Black, 0.99f);
-                    BoundingBox newSlot = newBlock.getCollisionBox();
-                    bool collides = false;
-                    foreach (Blocks.Block i in blockList)
-                    {
-                        if (newSlot.Intersects(i.getCollisionBox()))
-                        {
-                            collides = true;
-                        }
-                    }
-                    if (!collides)
-                    {
-                        blockList.Add(newBlock);
-                    }
+                    cursor = null;
                 }
             }
             else if (Mouse.GetState().RightButton == ButtonState.Pressed)
             {
-                Blocks.Block delCollider = new Blocks.Block(cursor.getPosition(), Color.Red, 0.99f);
-                BoundingBox delSlot = delCollider.getCollisionBox();
-                List<Blocks.Block> removeQueue = new List<Blocks.Block>();
-                foreach (Blocks.Block i in blockList)
+                if (cTool == PlayerAttrib.ToolState.selector)
                 {
-                    if (delSlot.Intersects(i.getCollisionBox()))
+                    Blocks.Block delCollider = new Blocks.Block(cursor.getPosition(), Color.Red, 0.8f);
+                    BoundingBox delSlot = delCollider.getCollisionBox();
+                    List<Blocks.Block> removeQueue = new List<Blocks.Block>();
+                    foreach (Blocks.Block i in blockList)
                     {
-                        removeQueue.Add(i);
+                        if (delSlot.Intersects(i.getCollisionBox()))
+                        {
+                            removeQueue.Add(i);
+                        }
                     }
-                }
-                foreach (Blocks.Block i in removeQueue)
-                {
-                    blockList.Remove(i);
+                    foreach (Blocks.Block i in removeQueue)
+                    {
+                        if (i.userRemovable)
+                        {
+                            blockList.Remove(i);
+                        }
+                    }
                 }
             }
             else
             {
-                draw3DCursor();
+                if (cTool == PlayerAttrib.ToolState.selector)
+                {
+                    draw3DCursor();
+                }
+            }
+
+            if (cTool == PlayerAttrib.ToolState.status)
+            {
+                Ray targetBox = GraphicsHelpers.DimensionBlending.CalculateRay(new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2), view, projection, GraphicsDevice.Viewport);
+                Blocks.Block blockTemplate = new Blocks.Block();
+                float? lowestHitDistance = null;
+                foreach (Blocks.Block i in blockList)
+                {
+                    float? dist = targetBox.Intersects(i.getCollisionBox());
+                    if (dist.HasValue)
+                    {
+                        if (!lowestHitDistance.HasValue)
+                        {
+                            lowestHitDistance = dist;
+                            blockTemplate = i;
+                        }
+                        else
+                        {
+                            if (dist < lowestHitDistance)
+                            {
+                                lowestHitDistance = dist;
+                                blockTemplate = i;
+                            }
+                        }
+                    }
+                }
+                if (!lowestHitDistance.HasValue)
+                {
+                    statusItem = "";
+                    statusHealth = 0.0f;
+                }
+                else
+                {
+                    statusItem = blockTemplate.name;
+                    statusHealth = blockTemplate.health;
+                }
             }
 
             float timeDifference = (float)gameTime.ElapsedGameTime.TotalMilliseconds / 1000.0f;
@@ -275,9 +355,23 @@ namespace BlockWars
             basicEffect.Projection = projection;
             basicEffect.VertexColorEnabled = true;
 
+            //basicEffect.FogEnabled = true;
+            //basicEffect.FogColor = Color.Black.ToVector3(); // For best results, ake this color whatever your background is.
+            //basicEffect.FogStart = 15.0f;
+            //basicEffect.FogEnd = 20.0f;
+
+
+
             //GraphicsDevice.SetVertexBuffer(vertexBuffer);
 
             basicEffect.EnableDefaultLighting();
+            //basicEffect.DirectionalLight0.Enabled = true;
+            //basicEffect.DirectionalLight0.Direction = new Vector3(0, -1, 0);
+            //basicEffect.DirectionalLight0.DiffuseColor = new Vector3(0.5f, 0, 0);
+            //basicEffect.DirectionalLight0.SpecularColor = new Vector3(0, 1, 0);
+
+            //basicEffect.AmbientLightColor = new Vector3(0.0f, 0.0f, 0.0f);
+            //basicEffect.SpecularPower = 0.000001f;
 
             RasterizerState rs = new RasterizerState();
             rs.CullMode = CullMode.CullClockwiseFace;
@@ -301,13 +395,25 @@ namespace BlockWars
             }
 
             float frameRate = 1 / (float)gameTime.ElapsedGameTime.TotalSeconds;
-
             spriteBatch.Begin();
-            spriteBatch.DrawString(_sf_debug, cameraController.camera.ToString(), new Vector2(5, 5), Color.Yellow);
-            spriteBatch.DrawString(_sf_debug, frameRate.ToString(), new Vector2(5, 21), Color.Yellow);
-            if (cursor != null)
+            if (_showDebug)
             {
-                spriteBatch.DrawString(_sf_debug, cursor.ToString(), new Vector2(5, 64), Color.Yellow);
+                spriteBatch.DrawString(_sf_debug, cameraController.camera.ToString(), new Vector2(5, 5), Color.Yellow);
+                spriteBatch.DrawString(_sf_debug, frameRate.ToString(), new Vector2(5, 21), Color.Yellow);
+                if (cursor != null)
+                {
+                    spriteBatch.DrawString(_sf_debug, cursor.ToString(), new Vector2(5, 64), Color.Yellow);
+                }
+            }
+            spriteBatch.DrawString(_sf_crosshair, "+", new Vector2((GraphicsDevice.Viewport.Width / 2) - 20, (GraphicsDevice.Viewport.Height / 2) - 20), Color.Black);
+            if (cTool == PlayerAttrib.ToolState.status)
+            {
+                spriteBatch.DrawString(_sf_crosshair, statusItem, new Vector2((GraphicsDevice.Viewport.Width / 2) - 50, (GraphicsDevice.Viewport.Height / 2) + 10), Color.Yellow);
+                spriteBatch.DrawString(_sf_crosshair, statusHealth.ToString() + "%", new Vector2((GraphicsDevice.Viewport.Width / 2) - 50, (GraphicsDevice.Viewport.Height / 2) + 60), Color.Yellow);
+            }
+            if (cTool == PlayerAttrib.ToolState.selector)
+            {
+                spriteBatch.DrawString(_sf_crosshair, currentBuilder + " - " + currentBuilderHP, new Vector2(5, GraphicsDevice.Viewport.Height - 70), Color.Yellow);
             }
             spriteBatch.End();
 

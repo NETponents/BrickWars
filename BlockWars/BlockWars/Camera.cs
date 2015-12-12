@@ -160,4 +160,11 @@ namespace BlockWars
         }
         #endregion
     }
+    public enum CameraAngle
+    {
+        FirstPerson,
+        ThirdPerson,
+        Dead,
+        Spectator
+    }
 }

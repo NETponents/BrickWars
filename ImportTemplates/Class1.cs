@@ -21,5 +21,7 @@ namespace ImportTemplates
         public string startPosition;
         public string endPosition;
         public string Color;
+        public string Name;
+        public float Health;
     }
 }
