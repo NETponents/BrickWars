@@ -4,37 +4,37 @@
     <Item>
       <startPosition>1,0,1</startPosition>
       <endPosition>21,0,21</endPosition>
-      <Color>0,255,0,255</Color>
-      <Name>Ground</Name>
-      <Health>1.0</Health>
+      <Color>255,255,255,255</Color>
+      <Name>Arena Floor</Name>
+      <Health>9999.0</Health>
     </Item>
     <Item>
       <startPosition>0,1,0</startPosition>
       <endPosition>0,4,22</endPosition>
-      <Color>0,0,255,255</Color>
-      <Name>Wall</Name>
-      <Health>1.0</Health>
+      <Color>255,153,0,255</Color>
+      <Name>Arena Wall</Name>
+      <Health>9999.0</Health>
     </Item>
     <Item>
       <startPosition>0,1,22</startPosition>
       <endPosition>22,4,22</endPosition>
-      <Color>0,0,255,255</Color>
-      <Name>Wall</Name>
-      <Health>1.0</Health>
+      <Color>255,153,0,255</Color>
+      <Name>Arena Wall</Name>
+      <Health>9999.0</Health>
     </Item>
     <Item>
       <startPosition>22,1,0</startPosition>
       <endPosition>22,4,22</endPosition>
-      <Color>0,0,255,255</Color>
-      <Name>Wall</Name>
-      <Health>1.0</Health>
+      <Color>255,153,0,255</Color>
+      <Name>Arena Wall</Name>
+      <Health>9999.0</Health>
     </Item>
     <Item>
       <startPosition>0,1,0</startPosition>
       <endPosition>22,4,0</endPosition>
-      <Color>0,0,255,255</Color>
-      <Name>Wall</Name>
-      <Health>1.0</Health>
+      <Color>255,153,0,255</Color>
+      <Name>Arena Wall</Name>
+      <Health>9999.0</Health>
     </Item>
   </Asset>
 </XnaContent>

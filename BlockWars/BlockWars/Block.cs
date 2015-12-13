@@ -10,6 +10,9 @@ namespace BlockWars
 {
     namespace Blocks
     {
+        /// <summary>
+        /// Main class for in-game block object.
+        /// </summary>
         class Block
         {
             private VertexIndexPair drawData;
@@ -27,6 +30,9 @@ namespace BlockWars
             public float health;
             public string name;
 
+            /// <summary>
+            /// Constructor for Block class.
+            /// </summary>
             public Block()
             {
                 position = new Vector3(0, 0, 0);
@@ -37,6 +43,10 @@ namespace BlockWars
                 name = "Basic Block";
                 updateVerticeList();
             }
+            /// <summary>
+            /// Constructor for Block class.
+            /// </summary>
+            /// <param name="rootPosition">Root location of block.</param>
             public Block(Vector3 rootPosition)
             {
                 position = rootPosition;
@@ -47,6 +57,11 @@ namespace BlockWars
                 name = "Basic Block";
                 updateVerticeList();
             }
+            /// <summary>
+            /// Constructor for Block class.
+            /// </summary>
+            /// <param name="rootPosition">Root location of block.</param>
+            /// <param name="cubeColor">Color of cube.</param>
             public Block(Vector3 rootPosition, Color cubeColor)
             {
                 position = rootPosition;
@@ -57,6 +72,12 @@ namespace BlockWars
                 name = "Basic Block";
                 updateVerticeList();
             }
+            /// <summary>
+            /// Constructor for Block class.
+            /// </summary>
+            /// <param name="rootPosition">Root location of block.</param>
+            /// <param name="cubeColor">Color of cube.</param>
+            /// <param name="lSize">Length of side of cube.</param>
             public Block(Vector3 rootPosition, Color cubeColor, float lSize)
             {
                 position = rootPosition;
@@ -67,6 +88,13 @@ namespace BlockWars
                 name = "Basic Block";
                 updateVerticeList();
             }
+            /// <summary>
+            /// Constructor for Block class.
+            /// </summary>
+            /// <param name="rootPosition">Root location of block.</param>
+            /// <param name="cubeColor">Color of cube.</param>
+            /// <param name="lSize">Length of side of cube.</param>
+            /// <param name="isUserRemovable">Can be removed by player using selector tool.</param>
             public Block(Vector3 rootPosition, Color cubeColor, float lSize, bool isUserRemovable)
             {
                 position = rootPosition;
@@ -77,6 +105,14 @@ namespace BlockWars
                 name = "Basic Block";
                 updateVerticeList();
             }
+            /// <summary>
+            /// Constructor for Block class.
+            /// </summary>
+            /// <param name="rootPosition">Root location of block.</param>
+            /// <param name="cubeColor">Color of cube.</param>
+            /// <param name="lSize">Length of side of cube.</param>
+            /// <param name="isUserRemovable">Can be removed by player using selector tool.</param>
+            /// <param name="blockHealth">Starting health of block.</param>
             public Block(Vector3 rootPosition, Color cubeColor, float lSize, bool isUserRemovable, float blockHealth)
             {
                 position = rootPosition;
@@ -87,6 +123,15 @@ namespace BlockWars
                 name = "Basic Block";
                 updateVerticeList();
             }
+            /// <summary>
+            /// Constructor for Block class.
+            /// </summary>
+            /// <param name="rootPosition">Root location of block.</param>
+            /// <param name="cubeColor">Color of cube.</param>
+            /// <param name="lSize">Length of side of cube.</param>
+            /// <param name="isUserRemovable">Can be removed by player using selector tool.</param>
+            /// <param name="blockHealth">Starting health of block.</param>
+            /// <param name="blockName">Display name of block.</param>
             public Block(Vector3 rootPosition, Color cubeColor, float lSize, bool isUserRemovable, float blockHealth, string blockName)
             {
                 position = rootPosition;
@@ -98,14 +143,29 @@ namespace BlockWars
                 updateVerticeList();
             }
 
+            /// <summary>
+            /// Recalculate vertice positions after property update.
+            /// </summary>
             protected void updateVerticeList()
             {
                 drawData = updateVerticeList(position, size, color);
             }
+            /// <summary>
+            /// Recalculate vertice positions after property update.
+            /// </summary>
+            /// <param name="rootPosition">Root position of cube.</param>
+            /// <returns>Vertex/Index list pair of cube vertices.</returns>
             protected static VertexIndexPair updateVerticeList(Vector3 rootPosition)
             {
                 return updateVerticeList(rootPosition, 1.0f, Color.Red);
             }
+            /// <summary>
+            /// Recalculate vertice positions after property update.
+            /// </summary>
+            /// <param name="rootPosition">Root position of cube.</param>
+            /// <param name="wSize">Length of side of cube.</param>
+            /// <param name="cubeColor">Vertex color of cube.</param>
+            /// <returns>Vertex/Index list pair of cube vertices.</returns>
             protected static VertexIndexPair updateVerticeList(Vector3 rootPosition, float wSize, Color cubeColor)
             {
                 float wOffset = (float)((1.0f - wSize) / 2);
@@ -210,37 +270,82 @@ namespace BlockWars
                 return result;
             }
 
+            /// <summary>
+            /// Gets vertice list of cube.
+            /// </summary>
+            /// <returns>Vertex/Position/Color/Normal collection of cube vertices.</returns>
             public VertexPositionColorNormal[] getVerticeList()
             {
                 return drawData.vertices;
             }
 
+            /// <summary>
+            /// Gets list of indices relative to current vertex list.
+            /// </summary>
+            /// <returns>Index list of cube.</returns>
             public int[] getIndices()
             {
                 return drawData.index;
             }
 
+            /// <summary>
+            /// Sets position of cube object.
+            /// </summary>
+            /// <param name="newPosition">Position to move to.</param>
             public void setPosition(Vector3 newPosition)
             {
                 position = newPosition;
                 updateVerticeList();
             }
+            /// <summary>
+            /// Gets root position of cube.
+            /// </summary>
+            /// <returns>Root position of cube.</returns>
             public Vector3 getPosition()
             {
                 return position;
             }
+            /// <summary>
+            /// Sets color of cube.
+            /// </summary>
+            /// <param name="newColor">New color of cube.</param>
             public void setColor(Color newColor)
             {
                 color = newColor;
                 updateVerticeList();
             }
+            /// <summary>
+            /// Gets color of cube.
+            /// </summary>
+            /// <returns>Current color of cube.</returns>
+            public Color getColor()
+            {
+                return color;
+            }
+            /// <summary>
+            /// Gets length of side of cube.
+            /// </summary>
+            /// <returns>Length of side.</returns>
+            public float getSize()
+            {
+                return size;
+            }
 
+            /// <summary>
+            /// Generates pixel-perfect collision box based on absoute dimension of cube.
+            /// </summary>
+            /// <returns>Collision box of cube.</returns>
             public BoundingBox getCollisionBox()
             {
                 Vector3 startPos = position + new Vector3(offset, offset, offset);
                 Vector3 endPos = startPos + new Vector3(offset + size, offset + size, offset + size);
                 return new BoundingBox(startPos, endPos);
             }
+            /// <summary>
+            /// Gets pixel-perfect collision box of normalized side of box.
+            /// </summary>
+            /// <param name="normalizedDirection">Normalized side of box.</param>
+            /// <returns>Bounding box of specified side of cube.</returns>
             public BoundingBox? getSideCollisionBox(Vector3 normalizedDirection)
             {
                 if (normalizedDirection == Vector3.Up)
@@ -273,6 +378,11 @@ namespace BlockWars
                 }
             }
 
+            /// <summary>
+            /// Deals damage to the cube.
+            /// </summary>
+            /// <param name="damage">Amount of damage to deal to cube.</param>
+            /// <returns>If cube still has health after damage.</returns>
             public bool addDamage(float damage)
             {
                 health -= damage;
@@ -286,6 +396,10 @@ namespace BlockWars
                 }
             }
 
+            /// <summary>
+            /// String summation of cube for HUD or saving.
+            /// </summary>
+            /// <returns>String summation of cube.</returns>
             public override string ToString()
             {
                 return String.Format("[({0}:{1}:{2}),({3},{4},{5},{6}),({7})]",

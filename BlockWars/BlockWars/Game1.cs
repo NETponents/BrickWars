@@ -43,6 +43,10 @@ namespace BlockWars
         string currentBuilder = "Basic Block";
         int currentBuilderHP = 100;
 
+        int lastScrollValue = 0;
+        int currentBuild = 0;
+        List<Blocks.Block> toolSelector = new List<Blocks.Block>();
+
         VertexBuffer vertexBuffer;
         
         Matrix world = Matrix.CreateTranslation(0, 0, 0);
@@ -131,6 +135,10 @@ namespace BlockWars
             //vertexBuffer = new VertexBuffer(GraphicsDevice, typeof(VertexPositionColor), blockList.Count * 36, BufferUsage.WriteOnly);
             //vertexBuffer.SetData<GraphicsHelpers.VertexPositionColorNormal>(vertices);
 
+            toolSelector.Add(new Blocks.Block(new Vector3(0, 0, 0), Color.Black, 0.999f, true, 100, "Basic Block (Black)"));
+            toolSelector.Add(new Blocks.Block(new Vector3(0, 0, 0), Color.White, 0.999f, true, 1000, "Superblock (White)"));
+            toolSelector.Add(new Blocks.Block(new Vector3(0, 0, 0), Color.Brown, 0.999f, true, 20, "Garbage"));
+
             Mouse.SetPosition(5, 5);
             originalMouseState = Mouse.GetState();
 
@@ -209,7 +217,7 @@ namespace BlockWars
                 {
                     Ray templateCast = GraphicsHelpers.DimensionBlending.CalculateRay(new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2), view, projection, GraphicsDevice.Viewport);
                     float? lowestHitDistance = null;
-                    Vector3? lowestBuildDirection = null;
+                    Vector3 lowestBuildDirection = new Vector3(-2, -2, -2);
                     Vector3[] directions = { Vector3.Up, Vector3.Down, Vector3.Left, Vector3.Right, Vector3.Forward, Vector3.Backward };
                     for (int i = 0; i < directions.Length; i++)
                     {
@@ -233,9 +241,22 @@ namespace BlockWars
                             }
                         }
                     }
-                    if (lowestBuildDirection.HasValue)
+                    if (!lowestBuildDirection.Equals(new Vector3(-2, -2, -2)))
                     {
-                        Blocks.Block newBlock = new Blocks.Block(cursor.getPosition() + lowestBuildDirection.Value, Color.Black, 0.8f);
+                        //if (lowestBuildDirection.X == 1)
+                        //{
+                        //    lowestBuildDirection.X = 1.001f;
+                        //}
+                        //if (lowestBuildDirection.Y == 1)
+                        //{
+                        //    lowestBuildDirection.Y = 1.001f;
+                        //}
+                        //if (lowestBuildDirection.Z == 1)
+                        //{
+                        //    lowestBuildDirection.Z = 1.001f;
+                        //}
+
+                        Blocks.Block newBlock = new Blocks.Block(cursor.getPosition() + lowestBuildDirection, Color.Black, 0.8f);
                         BoundingBox newSlot = newBlock.getCollisionBox();
                         bool collides = false;
                         foreach (Blocks.Block i in blockList)
@@ -247,8 +268,42 @@ namespace BlockWars
                         }
                         if (!collides)
                         {
-                            blockList.Add(new Blocks.Block(newBlock.getPosition(), Color.Black, 0.999f));
+                            Blocks.Block temp = new Blocks.Block(newBlock.getPosition(), toolSelector[currentBuild].getColor(), toolSelector[currentBuild].getSize(), toolSelector[currentBuild].userRemovable, toolSelector[currentBuild].health, toolSelector[currentBuild].name);
+                            temp.setPosition(newBlock.getPosition());
+                            blockList.Add(temp);
                         }
+                    }
+                }
+                else if (cTool == PlayerAttrib.ToolState.gun)
+                {
+                    cursor = null;
+                    Ray targetBox = GraphicsHelpers.DimensionBlending.CalculateRay(new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2), view, projection, GraphicsDevice.Viewport);
+                    Blocks.Block blockTemplate = new Blocks.Block();
+                    float? lowestHitDistance = null;
+                    List<Blocks.Block> removeQueue = new List<Blocks.Block>();
+                    foreach (Blocks.Block i in blockList)
+                    {
+                        float? dist = targetBox.Intersects(i.getCollisionBox());
+                        if (dist.HasValue && dist.Value <= 10.0f)
+                        {
+                            i.health -= 1.5f;
+                            if(i.health <= 0)
+                            {
+                                removeQueue.Add(i);
+                            }
+                        }
+                    }
+                    foreach (Blocks.Block i in removeQueue)
+                    {
+                        blockList.Remove(i);
+                    }
+                    if (!lowestHitDistance.HasValue)
+                    {
+                        // No intersections were found
+                    }
+                    else
+                    {
+                        // No need to do anything
                     }
                 }
                 else
@@ -278,6 +333,32 @@ namespace BlockWars
                         }
                     }
                 }
+            }
+            else if (Mouse.GetState().ScrollWheelValue != lastScrollValue)
+            {
+                if (cTool == PlayerAttrib.ToolState.selector)
+                {
+                    if (Mouse.GetState().ScrollWheelValue > lastScrollValue)
+                    {
+                        currentBuild++;
+                        if (currentBuild >= toolSelector.Count)
+                        {
+                            currentBuild = 0;
+                        }
+                    }
+                    else
+                    {
+                        currentBuild--;
+                        if (currentBuild < 0)
+                        {
+                            currentBuild = toolSelector.Count - 1;
+                        }
+                    }
+                    currentBuilder = toolSelector[currentBuild].name;
+                    currentBuilderHP = (int)toolSelector[currentBuild].health;
+                }
+                lastScrollValue = Mouse.GetState().ScrollWheelValue;
+                
             }
             else
             {
@@ -409,11 +490,11 @@ namespace BlockWars
             if (cTool == PlayerAttrib.ToolState.status)
             {
                 spriteBatch.DrawString(_sf_crosshair, statusItem, new Vector2((GraphicsDevice.Viewport.Width / 2) - 50, (GraphicsDevice.Viewport.Height / 2) + 10), Color.Yellow);
-                spriteBatch.DrawString(_sf_crosshair, statusHealth.ToString() + "%", new Vector2((GraphicsDevice.Viewport.Width / 2) - 50, (GraphicsDevice.Viewport.Height / 2) + 60), Color.Yellow);
+                spriteBatch.DrawString(_sf_crosshair, ((int)statusHealth).ToString() + "%", new Vector2((GraphicsDevice.Viewport.Width / 2) - 50, (GraphicsDevice.Viewport.Height / 2) + 60), Color.Yellow);
             }
             if (cTool == PlayerAttrib.ToolState.selector)
             {
-                spriteBatch.DrawString(_sf_crosshair, currentBuilder + " - " + currentBuilderHP, new Vector2(5, GraphicsDevice.Viewport.Height - 70), Color.Yellow);
+                spriteBatch.DrawString(_sf_crosshair, currentBuilder + " - " + currentBuilderHP + " HP", new Vector2(5, GraphicsDevice.Viewport.Height - 70), Color.Yellow);
             }
             spriteBatch.End();
 
@@ -457,7 +538,7 @@ namespace BlockWars
             }
             else
             {
-                cursor = new Blocks.Block(blockTemplate.getPosition(), new Color(255, 255, 255, 255), 1.001f);
+                cursor = new Blocks.Block(blockTemplate.getPosition(), new Color(255, 255, 255, 255), 1.1f);
             }
         }
     }
