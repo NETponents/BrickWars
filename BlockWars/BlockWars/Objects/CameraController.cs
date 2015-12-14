@@ -49,7 +49,7 @@ namespace BlockWars
             }
         }
 
-        public void updateCamera(ref MouseState ms, ref KeyboardState keyState, float timeDifference, float moveSpeed)
+        public void updateCamera(ref List<Blocks.Block> blockList, ref MouseState ms, ref KeyboardState keyState, float timeDifference, float moveSpeed)
         {
             if (ms != previousMouseState)
             {
@@ -75,9 +75,12 @@ namespace BlockWars
                 moveVector += new Vector3(0, 1, 0);
             if (keyState.IsKeyDown(Keys.Z))
                 moveVector += new Vector3(0, -1, 0);
-            camera.addPosition(moveVector * timeDifference * moveSpeed);
+            if (moveVector != Vector3.Zero)
+            {
+                camera.addPosition(ref blockList, moveVector * timeDifference * moveSpeed);
+            }
         }
-        public void updateCamera(ref MouseState ms, ref KeyboardState keyState, float timeDifference, float moveSpeed, float rotationSpeed)
+        public void updateCamera(ref List<Blocks.Block> blockList, ref MouseState ms, ref KeyboardState keyState, float timeDifference, float moveSpeed, float rotationSpeed)
         {
             if (ms != previousMouseState)
             {
@@ -103,7 +106,7 @@ namespace BlockWars
                 moveVector += new Vector3(0, 1, 0);
             if (keyState.IsKeyDown(Keys.Z))
                 moveVector += new Vector3(0, -1, 0);
-            camera.addPosition(moveVector);
+            camera.addPosition(ref blockList, moveVector);
         }
 
         public Matrix getView()

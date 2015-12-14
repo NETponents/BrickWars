@@ -5,7 +5,7 @@ using System.Text;
 
 namespace BlockWars
 {
-    namespace Display
+    /*namespace Display
     {
         namespace Screens
         {
@@ -50,11 +50,11 @@ namespace BlockWars
                 /// <param name="gameObject"></param>
                 /// <param name="ms"></param>
                 /// <param name="ks"></param>
-                public override void Update(ref Game1 gameObject, Microsoft.Xna.Framework.Input.MouseState ms, Microsoft.Xna.Framework.Input.KeyboardState ks)
+                public void Update(ref Game1 gameObject, Microsoft.Xna.Framework.Input.MouseState ms, Microsoft.Xna.Framework.Input.KeyboardState ks)
                 {
                     throw new NotImplementedException();
                 }
             }
         }
-    }
+    }*/
 }

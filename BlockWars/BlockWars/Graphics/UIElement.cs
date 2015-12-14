@@ -23,29 +23,29 @@ namespace BlockWars
         /// </summary>
         public interface IUIElement
         {
-            public void Update();
-            public Texture2D Draw();
+            void Update();
+            Texture2D Draw();
         }
         /// <summary>
         /// Interface for clickable UI elements.
         /// </summary>
         public interface IClickable
         {
-            public void ProcessMouse(MouseState ms);
+            void ProcessMouse(MouseState ms);
         }
         /// <summary>
         /// Interface for UI elements that can take keyboard input.
         /// </summary>
         public interface IKeyboardControllable
         {
-            public void ProcessKeyboard(KeyboardState ks);
+            void ProcessKeyboard(KeyboardState ks);
         }
         /// <summary>
         /// Interface for UI elements that can launch an action when fired.
         /// </summary>
         public interface IActionable
         {
-            public string ProcessAction();
+            string ProcessAction();
         }
         /// <summary>
         /// Clickable button UI element.

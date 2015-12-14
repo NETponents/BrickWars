@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
 namespace BlockWars
@@ -37,12 +38,25 @@ namespace BlockWars
         {
             _position = cameraPosition;
         }
-        public void addPosition(Vector3 addVector)
+        public void addPosition(ref List<Blocks.Block> blockList, Vector3 addVector)
         {
             //Matrix cameraRotation = Matrix.CreateRotationX(_pitch) * Matrix.CreateRotationY(_yaw);
             Matrix cameraRotation = Matrix.CreateRotationY(_yaw);
             Vector3 rotatedVector = Vector3.Transform(addVector, cameraRotation);
-            _position += rotatedVector;
+            Vector3 tempVector = _position + rotatedVector;
+            bool blocked = false;
+            foreach (Blocks.Block i in blockList)
+            {
+                if (i.getCollisionBox().Intersects(new BoundingBox(tempVector, tempVector)))
+                {
+                    blocked = true;
+                    break;
+                }
+            }
+            if (!blocked)
+            {
+                _position += rotatedVector;
+            }
         }
         public void addPosition(Vector3 addVector, float moveSpeed)
         {

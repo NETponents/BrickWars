@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace BlockWars
 {
+    /*
     namespace Display
     {
         namespace Screens
@@ -16,21 +17,21 @@ namespace BlockWars
             /// </summary>
             public interface IContent3D
             {
-                private override void Draw3DContent();
+                void Draw3DContent();
             }
             /// <summary>
             /// Definition for Screen class instance that contains 2D content.
             /// </summary>
             public interface IContent2D
             {
-                private override void Draw2DContent();
+                void Draw2DContent();
             }
             /// <summary>
             /// Interface of interactive Screen class instance that accepts controller input.
             /// </summary>
             public interface IInput
             {
-                public override void Update(ref Game1 gameObject, MouseState ms, KeyboardState ks);
+                void Update(ref Game1 gameObject, MouseState ms, KeyboardState ks);
             }
             /// <summary>
             /// Base class for Screen objects.
@@ -73,14 +74,14 @@ namespace BlockWars
                 /// <summary>
                 /// Draws 3D content in screen instance.
                 /// </summary>
-                private virtual void Draw3DContent()
+                protected virtual void Draw3DContent()
                 {
                     // Do nothing, item has no 3D content.
                 }
                 /// <summary>
                 /// Draws 2D content in current screen instance.
                 /// </summary>
-                private virtual void Draw2DContent()
+                protected virtual void Draw2DContent()
                 {
                     // Do nothing, item has no 2D content.
                 }
@@ -93,5 +94,5 @@ namespace BlockWars
                 }
             }
         }
-    }
+    }*/
 }

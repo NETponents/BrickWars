@@ -6,6 +6,7 @@ namespace BlockWars
 {
     namespace GraphicsHelpers
     {
+        [Serializable]
         public struct VertexPositionColorNormal
         {
             public Vector3 Position;
@@ -18,6 +19,7 @@ namespace BlockWars
                 new VertexElement(sizeof(float) * 3 + 4, VertexElementFormat.Vector3, VertexElementUsage.Normal, 0)
             );
         }
+        [Serializable]
         public struct VertexIndexPair
         {
             public VertexPositionColorNormal[] vertices;

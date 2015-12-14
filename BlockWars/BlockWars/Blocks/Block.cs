@@ -13,12 +13,13 @@ namespace BlockWars
         /// <summary>
         /// Main class for in-game block object.
         /// </summary>
-        class Block
+        [Serializable]
+        public abstract class Block : ICloneable
         {
             private VertexIndexPair drawData;
-            private Vector3 position;
-            private Color color;
-            private float size;
+            protected Vector3 position;
+            protected Color color;
+            protected float size;
             private float offset
             {
                 get
@@ -27,8 +28,9 @@ namespace BlockWars
                 }
             }
             public bool userRemovable;
-            public float health;
-            public string name;
+            protected float health;
+            protected string name;
+            protected string colorName;
 
             /// <summary>
             /// Constructor for Block class.
@@ -37,6 +39,7 @@ namespace BlockWars
             {
                 position = new Vector3(0, 0, 0);
                 color = Color.Red;
+                colorName = "Red";
                 size = 1.0f;
                 userRemovable = true;
                 health = 100.0f;
@@ -51,6 +54,7 @@ namespace BlockWars
             {
                 position = rootPosition;
                 color = Color.Red;
+                colorName = "Red";
                 size = 1.0f;
                 userRemovable = true;
                 health = 100.0f;
@@ -62,10 +66,11 @@ namespace BlockWars
             /// </summary>
             /// <param name="rootPosition">Root location of block.</param>
             /// <param name="cubeColor">Color of cube.</param>
-            public Block(Vector3 rootPosition, Color cubeColor)
+            public Block(Vector3 rootPosition, Color cubeColor, string colName)
             {
                 position = rootPosition;
                 color = cubeColor;
+                colorName = colName;
                 size = 1.0f;
                 userRemovable = true;
                 health = 100.0f;
@@ -78,10 +83,11 @@ namespace BlockWars
             /// <param name="rootPosition">Root location of block.</param>
             /// <param name="cubeColor">Color of cube.</param>
             /// <param name="lSize">Length of side of cube.</param>
-            public Block(Vector3 rootPosition, Color cubeColor, float lSize)
+            public Block(Vector3 rootPosition, Color cubeColor, string colName, float lSize)
             {
                 position = rootPosition;
                 color = cubeColor;
+                colorName = colName;
                 size = lSize;
                 userRemovable = true;
                 health = 100.0f;
@@ -95,10 +101,11 @@ namespace BlockWars
             /// <param name="cubeColor">Color of cube.</param>
             /// <param name="lSize">Length of side of cube.</param>
             /// <param name="isUserRemovable">Can be removed by player using selector tool.</param>
-            public Block(Vector3 rootPosition, Color cubeColor, float lSize, bool isUserRemovable)
+            public Block(Vector3 rootPosition, Color cubeColor, string colName, float lSize, bool isUserRemovable)
             {
                 position = rootPosition;
                 color = cubeColor;
+                colorName = colName;
                 size = lSize;
                 userRemovable = isUserRemovable;
                 health = 100.0f;
@@ -113,10 +120,11 @@ namespace BlockWars
             /// <param name="lSize">Length of side of cube.</param>
             /// <param name="isUserRemovable">Can be removed by player using selector tool.</param>
             /// <param name="blockHealth">Starting health of block.</param>
-            public Block(Vector3 rootPosition, Color cubeColor, float lSize, bool isUserRemovable, float blockHealth)
+            public Block(Vector3 rootPosition, Color cubeColor, string colName, float lSize, bool isUserRemovable, float blockHealth)
             {
                 position = rootPosition;
                 color = cubeColor;
+                colorName = colName;
                 size = lSize;
                 userRemovable = isUserRemovable;
                 health = blockHealth;
@@ -132,7 +140,7 @@ namespace BlockWars
             /// <param name="isUserRemovable">Can be removed by player using selector tool.</param>
             /// <param name="blockHealth">Starting health of block.</param>
             /// <param name="blockName">Display name of block.</param>
-            public Block(Vector3 rootPosition, Color cubeColor, float lSize, bool isUserRemovable, float blockHealth, string blockName)
+            public Block(Vector3 rootPosition, Color cubeColor, string colName, float lSize, bool isUserRemovable, float blockHealth, string blockName)
             {
                 position = rootPosition;
                 color = cubeColor;
@@ -383,7 +391,7 @@ namespace BlockWars
             /// </summary>
             /// <param name="damage">Amount of damage to deal to cube.</param>
             /// <returns>If cube still has health after damage.</returns>
-            public bool addDamage(float damage)
+            public virtual bool addDamage(float damage)
             {
                 health -= damage;
                 if (health <= 0)
@@ -394,6 +402,30 @@ namespace BlockWars
                 {
                     return true;
                 }
+            }
+            /// <summary>
+            /// Gets the HP count of block.
+            /// </summary>
+            /// <returns>HP of block.</returns>
+            public virtual string getHealth()
+            {
+                return ((int)health).ToString();
+            }
+            /// <summary>
+            /// Returns if the block cannot be destroyed by anything except the builder tool.
+            /// </summary>
+            /// <returns>Indestructable property.</returns>
+            public virtual bool isIdestructable()
+            {
+                return false;
+            }
+            /// <summary>
+            /// Gets name of block instance.
+            /// </summary>
+            /// <returns>Name of block.</returns>
+            public virtual string getName()
+            {
+                return name + " (" + colorName + ")";
             }
 
             /// <summary>
@@ -412,6 +444,19 @@ namespace BlockWars
                     color.A,
                     size);
             }
+
+            public object Clone()
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        /// <summary>
+        /// Interface for dynamic blocks that need updating every game cycle.
+        /// </summary>
+        interface IUpdateable
+        {
+            void Update();
         }
     }
 }

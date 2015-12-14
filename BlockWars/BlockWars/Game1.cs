@@ -8,6 +8,8 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 using ImportTemplates;
 
 namespace BlockWars
@@ -32,16 +34,16 @@ namespace BlockWars
         private BasicEffect basicEffect;
         //private Effect coreEffects;
 
-        private CameraController cameraController = new CameraController(new Vector3(0, 3, 3));
+        private CameraController cameraController = new CameraController(new Vector3(10, 10, 10));
 
         private List<Blocks.Block> blockList;
         private Blocks.Block cursor;
 
         string statusItem = "Nothing";
-        float statusHealth = 100.0f;
+        string statusHealth = "100";
 
         string currentBuilder = "Basic Block";
-        int currentBuilderHP = 100;
+        string currentBuilderHP = "100";
 
         int lastScrollValue = 0;
         int currentBuild = 0;
@@ -106,7 +108,7 @@ namespace BlockWars
                 Vector3 bPos = new Vector3(Convert.ToInt32(bPosVals[0]), Convert.ToInt32(bPosVals[1]), Convert.ToInt32(bPosVals[2]));
                 string[] bColVals = i.Color.Split(',');
                 Color bCol = new Color((float)Convert.ToDouble(bColVals[0]), (float)Convert.ToDouble(bColVals[1]), (float)Convert.ToDouble(bColVals[2]), (float)Convert.ToDouble(bColVals[3]));
-                blockList.Add(new Blocks.Block(bPos, bCol, 0.999f, true, 100.0f, "Pre-built Structure"));
+                blockList.Add(new Blocks.Basic(bPos, bCol, "Unknown", 0.999f, true, 100.0f/*, "Pre-built Structure"*/));
             }
             /// Terrain blocks
             List<BlockRangeTemplate> blockTLoadList = Content.Load<List<BlockRangeTemplate>>("Maps/Map1.terrain");
@@ -125,19 +127,20 @@ namespace BlockWars
                     {
                         for (int x = (int)tStartPosVec.X; x <= (int)tEndPosVec.X; x++)
                         {
-                            blockList.Add(new Blocks.Block(new Vector3(x, y, z), tCol, 1.0f, false, i.Health, i.Name));
+                            blockList.Add(new Blocks.WallBlock(new Vector3(x, y, z), tCol, "Unknown", 1.0f, false));
                         }
                     }
                 }
+                // TODO: Separate terrain from wall units
             }
 
 
             //vertexBuffer = new VertexBuffer(GraphicsDevice, typeof(VertexPositionColor), blockList.Count * 36, BufferUsage.WriteOnly);
             //vertexBuffer.SetData<GraphicsHelpers.VertexPositionColorNormal>(vertices);
 
-            toolSelector.Add(new Blocks.Block(new Vector3(0, 0, 0), Color.Black, 0.999f, true, 100, "Basic Block (Black)"));
-            toolSelector.Add(new Blocks.Block(new Vector3(0, 0, 0), Color.White, 0.999f, true, 1000, "Superblock (White)"));
-            toolSelector.Add(new Blocks.Block(new Vector3(0, 0, 0), Color.Brown, 0.999f, true, 20, "Garbage"));
+            toolSelector.Add(new Blocks.Basic(new Vector3(0, 0, 0), Color.Black, "Black", 0.999f, true, 100));
+            toolSelector.Add(new Blocks.Super(new Vector3(0, 0, 0), 0.999f));
+            toolSelector.Add(new Blocks.Garbage(new Vector3(0, 0, 0)));
 
             Mouse.SetPosition(5, 5);
             originalMouseState = Mouse.GetState();
@@ -256,7 +259,7 @@ namespace BlockWars
                         //    lowestBuildDirection.Z = 1.001f;
                         //}
 
-                        Blocks.Block newBlock = new Blocks.Block(cursor.getPosition() + lowestBuildDirection, Color.Black, 0.8f);
+                        Blocks.Block newBlock = new Blocks.Basic(cursor.getPosition() + lowestBuildDirection, Color.Black, "Black", 0.8f);
                         BoundingBox newSlot = newBlock.getCollisionBox();
                         bool collides = false;
                         foreach (Blocks.Block i in blockList)
@@ -268,8 +271,10 @@ namespace BlockWars
                         }
                         if (!collides)
                         {
-                            Blocks.Block temp = new Blocks.Block(newBlock.getPosition(), toolSelector[currentBuild].getColor(), toolSelector[currentBuild].getSize(), toolSelector[currentBuild].userRemovable, toolSelector[currentBuild].health, toolSelector[currentBuild].name);
+                            //Blocks.Block temp = toolSelector[currentBuild];
+                            Blocks.Block temp = DeepClone<Blocks.Block>(toolSelector[currentBuild]);
                             temp.setPosition(newBlock.getPosition());
+                            //TODO: Set up special reqs for IUpdatable blocks
                             blockList.Add(temp);
                         }
                     }
@@ -278,7 +283,6 @@ namespace BlockWars
                 {
                     cursor = null;
                     Ray targetBox = GraphicsHelpers.DimensionBlending.CalculateRay(new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2), view, projection, GraphicsDevice.Viewport);
-                    Blocks.Block blockTemplate = new Blocks.Block();
                     float? lowestHitDistance = null;
                     List<Blocks.Block> removeQueue = new List<Blocks.Block>();
                     foreach (Blocks.Block i in blockList)
@@ -286,8 +290,8 @@ namespace BlockWars
                         float? dist = targetBox.Intersects(i.getCollisionBox());
                         if (dist.HasValue && dist.Value <= 10.0f)
                         {
-                            i.health -= 1.5f;
-                            if(i.health <= 0)
+                            bool isAlive = i.addDamage(1.5f);
+                            if(!isAlive)
                             {
                                 removeQueue.Add(i);
                             }
@@ -315,7 +319,7 @@ namespace BlockWars
             {
                 if (cTool == PlayerAttrib.ToolState.selector)
                 {
-                    Blocks.Block delCollider = new Blocks.Block(cursor.getPosition(), Color.Red, 0.8f);
+                    Blocks.Block delCollider = new Blocks.Dummy(cursor.getPosition(), 0.8f);
                     BoundingBox delSlot = delCollider.getCollisionBox();
                     List<Blocks.Block> removeQueue = new List<Blocks.Block>();
                     foreach (Blocks.Block i in blockList)
@@ -340,22 +344,22 @@ namespace BlockWars
                 {
                     if (Mouse.GetState().ScrollWheelValue > lastScrollValue)
                     {
-                        currentBuild++;
-                        if (currentBuild >= toolSelector.Count)
-                        {
-                            currentBuild = 0;
-                        }
-                    }
-                    else
-                    {
                         currentBuild--;
                         if (currentBuild < 0)
                         {
                             currentBuild = toolSelector.Count - 1;
                         }
                     }
-                    currentBuilder = toolSelector[currentBuild].name;
-                    currentBuilderHP = (int)toolSelector[currentBuild].health;
+                    else
+                    {
+                        currentBuild++;
+                        if (currentBuild >= toolSelector.Count)
+                        {
+                            currentBuild = 0;
+                        }
+                    }
+                    currentBuilder = toolSelector[currentBuild].getName();
+                    currentBuilderHP = toolSelector[currentBuild].getHealth();
                 }
                 lastScrollValue = Mouse.GetState().ScrollWheelValue;
                 
@@ -371,7 +375,7 @@ namespace BlockWars
             if (cTool == PlayerAttrib.ToolState.status)
             {
                 Ray targetBox = GraphicsHelpers.DimensionBlending.CalculateRay(new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2), view, projection, GraphicsDevice.Viewport);
-                Blocks.Block blockTemplate = new Blocks.Block();
+                Blocks.Block blockTemplate = new Blocks.Dummy();
                 float? lowestHitDistance = null;
                 foreach (Blocks.Block i in blockList)
                 {
@@ -396,12 +400,12 @@ namespace BlockWars
                 if (!lowestHitDistance.HasValue)
                 {
                     statusItem = "";
-                    statusHealth = 0.0f;
+                    statusHealth = "";
                 }
                 else
                 {
-                    statusItem = blockTemplate.name;
-                    statusHealth = blockTemplate.health;
+                    statusItem = blockTemplate.getName();
+                    statusHealth = blockTemplate.getHealth();
                 }
             }
 
@@ -411,7 +415,7 @@ namespace BlockWars
             {
                 speed *= 4;
             }
-            ProcessInput(timeDifference, speed);
+            ProcessInput(ref blockList, timeDifference, speed);
             // TODO: Add your update logic here
             base.Update(gameTime);
         }
@@ -489,8 +493,15 @@ namespace BlockWars
             spriteBatch.DrawString(_sf_crosshair, "+", new Vector2((GraphicsDevice.Viewport.Width / 2) - 20, (GraphicsDevice.Viewport.Height / 2) - 20), Color.Black);
             if (cTool == PlayerAttrib.ToolState.status)
             {
-                spriteBatch.DrawString(_sf_crosshair, statusItem, new Vector2((GraphicsDevice.Viewport.Width / 2) - 50, (GraphicsDevice.Viewport.Height / 2) + 10), Color.Yellow);
-                spriteBatch.DrawString(_sf_crosshair, ((int)statusHealth).ToString() + "%", new Vector2((GraphicsDevice.Viewport.Width / 2) - 50, (GraphicsDevice.Viewport.Height / 2) + 60), Color.Yellow);
+                spriteBatch.DrawString(_sf_crosshair, statusItem, new Vector2((GraphicsDevice.Viewport.Width / 3), (GraphicsDevice.Viewport.Height / 2) + 25), Color.Yellow);
+                if (statusHealth != "Indestructable" && statusHealth != "")
+                {
+                    spriteBatch.DrawString(_sf_crosshair, statusHealth + " HP", new Vector2((GraphicsDevice.Viewport.Width / 3), (GraphicsDevice.Viewport.Height / 2) + 80), Color.Yellow);
+                }
+                else
+                {
+                    spriteBatch.DrawString(_sf_crosshair, statusHealth, new Vector2((GraphicsDevice.Viewport.Width / 3), (GraphicsDevice.Viewport.Height / 2) + 80), Color.Yellow);
+                }
             }
             if (cTool == PlayerAttrib.ToolState.selector)
             {
@@ -500,17 +511,17 @@ namespace BlockWars
 
             base.Draw(gameTime);
         }
-        private void ProcessInput(float timeDifference, float moveSpeed)
+        private void ProcessInput(ref List<Blocks.Block> blockList, float timeDifference, float moveSpeed)
         {
             MouseState currentMouseState = Mouse.GetState();
             KeyboardState keyState = Keyboard.GetState();
 
-            cameraController.updateCamera(ref currentMouseState, ref keyState, timeDifference, moveSpeed);
+            cameraController.updateCamera(ref blockList, ref currentMouseState, ref keyState, timeDifference, moveSpeed);
         }
         private void draw3DCursor()
         {
             Ray targetBox = GraphicsHelpers.DimensionBlending.CalculateRay(new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2), view, projection, GraphicsDevice.Viewport);
-            Blocks.Block blockTemplate = new Blocks.Block();
+            Blocks.Block blockTemplate = new Blocks.Dummy();
             float? lowestHitDistance = null;
             foreach (Blocks.Block i in blockList)
             {
@@ -538,7 +549,18 @@ namespace BlockWars
             }
             else
             {
-                cursor = new Blocks.Block(blockTemplate.getPosition(), new Color(255, 255, 255, 255), 1.1f);
+                cursor = new Blocks.Cursor(blockTemplate.getPosition(), 1.05f);
+            }
+        }
+        public static T DeepClone<T>(T obj)
+        {
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, obj);
+                ms.Position = 0;
+
+                return (T)formatter.Deserialize(ms);
             }
         }
     }

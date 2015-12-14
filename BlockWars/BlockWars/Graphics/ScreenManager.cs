@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 
 namespace BlockWars
-{
+{/*
     namespace Display
     {
         /// <summary>
@@ -80,5 +80,5 @@ namespace BlockWars
 
             }
         }
-    }
+    }*/
 }
