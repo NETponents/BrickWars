@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Microsoft.Xna.Framework;
+using BlockWars.Blocks;
 
 namespace BlockWars
 {
@@ -12,10 +12,21 @@ namespace BlockWars
         /// </summary>
         public class World
         {
+            #region Variables
+            // Private
+            private List<Block> _blockList;
+            private Cursor _cursor;
+            #endregion
+
+            #region Initializers
+            /// <summary>
+            /// Default constructor for a blank playing world.
+            /// </summary>
             public World()
             {
-
+                _blockList = new List<Block>();
             }
+            #endregion
         }
     }
 }

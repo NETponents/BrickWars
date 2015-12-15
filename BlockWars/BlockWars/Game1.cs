@@ -45,6 +45,8 @@ namespace BlockWars
         string currentBuilder = "Basic Block";
         string currentBuilderHP = "100";
 
+        float playerHP = 100.0f;
+
         int lastScrollValue = 0;
         int currentBuild = 0;
         List<Blocks.Block> toolSelector = new List<Blocks.Block>();
@@ -108,7 +110,7 @@ namespace BlockWars
                 Vector3 bPos = new Vector3(Convert.ToInt32(bPosVals[0]), Convert.ToInt32(bPosVals[1]), Convert.ToInt32(bPosVals[2]));
                 string[] bColVals = i.Color.Split(',');
                 Color bCol = new Color((float)Convert.ToDouble(bColVals[0]), (float)Convert.ToDouble(bColVals[1]), (float)Convert.ToDouble(bColVals[2]), (float)Convert.ToDouble(bColVals[3]));
-                blockList.Add(new Blocks.Basic(bPos, bCol, "Unknown", 0.999f, true, 100.0f/*, "Pre-built Structure"*/));
+                blockList.Add(new Blocks.Basic(bPos, bCol, "Unknown", 0.999f, true, 100.0f));
             }
             /// Terrain blocks
             List<BlockRangeTemplate> blockTLoadList = Content.Load<List<BlockRangeTemplate>>("Maps/Map1.terrain");
@@ -491,6 +493,7 @@ namespace BlockWars
                 }
             }
             spriteBatch.DrawString(_sf_crosshair, "+", new Vector2((GraphicsDevice.Viewport.Width / 2) - 20, (GraphicsDevice.Viewport.Height / 2) - 20), Color.Black);
+            spriteBatch.DrawString(_sf_crosshair, playerHP.ToString() + "%", new Vector2(5, GraphicsDevice.Viewport.Height - 150), Color.Yellow);
             if (cTool == PlayerAttrib.ToolState.status)
             {
                 spriteBatch.DrawString(_sf_crosshair, statusItem, new Vector2((GraphicsDevice.Viewport.Width / 3), (GraphicsDevice.Viewport.Height / 2) + 25), Color.Yellow);
@@ -546,10 +549,12 @@ namespace BlockWars
             if (!lowestHitDistance.HasValue)
             {
                 // No intersections were found
+                cursor = null;
             }
             else
             {
-                cursor = new Blocks.Cursor(blockTemplate.getPosition(), 1.05f);
+                cursor = new Blocks.Cursor(blockTemplate.getPosition(), blockTemplate.getColor());
+                cursor.setColor(Blocks.Cursor.invertColor(blockTemplate.getColor()));
             }
         }
         public static T DeepClone<T>(T obj)

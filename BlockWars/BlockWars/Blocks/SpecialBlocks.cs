@@ -8,7 +8,7 @@ namespace BlockWars
 {
     namespace Blocks
     {
-        [Serializable]
+        //[Serializable]
         public class Cursor : Block
         {
             public Cursor()
@@ -21,10 +21,25 @@ namespace BlockWars
             {
 
             }
-            public Cursor(Vector3 position, float cSize)
-                : base(position, Color.White, "White", cSize, false, 1, "Cursor")
+            public Cursor(Vector3 position, Color cColor)
+                : base(position, cColor, "White", 1.05f, false, 1, "Cursor")
             {
-
+                
+            }
+            public Cursor(Vector3 position, Color cColor, float cSize)
+                : base(position, cColor, "White", cSize, false, 1, "Cursor")
+            {
+                
+            }
+            public static Color invertColor(Color sColor)
+            {
+                Vector3 newCol = Vector3.Zero;
+                Vector3 oldCol = sColor.ToVector3() * new Vector3(255, 255, 255);
+                newCol.X = (float)255 - oldCol.X;
+                newCol.Y = (float)255 - oldCol.Y;
+                newCol.Z = (float)255 - oldCol.Z;
+                sColor = new Color(newCol);
+                return sColor;
             }
         }
         [Serializable]
