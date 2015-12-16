@@ -143,6 +143,8 @@ namespace BlockWars
             toolSelector.Add(new Blocks.Basic(new Vector3(0, 0, 0), Color.Black, "Black", 0.999f, true, 100));
             toolSelector.Add(new Blocks.Super(new Vector3(0, 0, 0), 0.999f));
             toolSelector.Add(new Blocks.Garbage(new Vector3(0, 0, 0)));
+            toolSelector.Add(new Blocks.Window(new Vector3(0, 0, 0)));
+            toolSelector.Add(new Blocks.ForceField(new Vector3(0, 0, 0)));
 
             Mouse.SetPosition(5, 5);
             originalMouseState = Mouse.GetState();
@@ -226,6 +228,11 @@ namespace BlockWars
                     Vector3[] directions = { Vector3.Up, Vector3.Down, Vector3.Left, Vector3.Right, Vector3.Forward, Vector3.Backward };
                     for (int i = 0; i < directions.Length; i++)
                     {
+                        if (cursor == null)
+                        {
+                            lowestBuildDirection = new Vector3(-2, -2, -2);
+                            break;
+                        }
                         BoundingBox? j = cursor.getSideCollisionBox(directions[i]);
                         if (j == null)
                         {
@@ -319,7 +326,7 @@ namespace BlockWars
             }
             else if (Mouse.GetState().RightButton == ButtonState.Pressed)
             {
-                if (cTool == PlayerAttrib.ToolState.selector)
+                if (cTool == PlayerAttrib.ToolState.selector && cursor != null)
                 {
                     Blocks.Block delCollider = new Blocks.Dummy(cursor.getPosition(), 0.8f);
                     BoundingBox delSlot = delCollider.getCollisionBox();

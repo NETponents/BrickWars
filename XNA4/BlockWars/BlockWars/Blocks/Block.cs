@@ -14,7 +14,7 @@ namespace BlockWars
         /// Main class for in-game block object.
         /// </summary>
         [Serializable]
-        public abstract class Block : ICloneable
+        public abstract class Block
         {
             private VertexIndexPair drawData;
             protected Vector3 position;
@@ -145,6 +145,7 @@ namespace BlockWars
                 position = rootPosition;
                 color = cubeColor;
                 size = lSize;
+                colorName = colName;
                 userRemovable = isUserRemovable;
                 health = blockHealth;
                 name = blockName;
@@ -382,7 +383,7 @@ namespace BlockWars
                 }
                 else
                 {
-                    return null;
+                    return new BoundingBox(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
                 }
             }
 
@@ -443,11 +444,6 @@ namespace BlockWars
                     color.B,
                     color.A,
                     size);
-            }
-
-            public object Clone()
-            {
-                throw new NotImplementedException();
             }
         }
 

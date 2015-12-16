@@ -75,5 +75,33 @@ namespace BlockWars
 
             }
         }
+        [Serializable]
+        public class Window : Block
+        {
+            public Window()
+                : base(Vector3.Zero, new Color(0, 0, 255, 30), "Blue", 0.99f, true, 10.0f, "Window")
+            {
+
+            }
+            public Window(Vector3 rootPosition)
+                : base(rootPosition, new Color(0, 0, 255, 30), "Blue", 0.999f, true, 10.0f, "Window")
+            {
+
+            }
+        }
+        [Serializable]
+        public class ForceField : Block
+        {
+            public ForceField()
+                : base(Vector3.Zero, new Color(0, 255, 0, 30), "Green", 0.85f, true, 150.0f, "Force Field")
+            {
+
+            }
+            public ForceField(Vector3 rootPosition)
+                : base(rootPosition, new Color(0, 255, 0, 30), "Green", 0.85f, true, 150.0f, "Force Field")
+            {
+
+            }
+        }
     }
 }

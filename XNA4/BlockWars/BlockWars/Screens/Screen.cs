@@ -26,6 +26,15 @@ namespace BlockWars
                 {
                     Name = "Default";
                 }
+
+                public virtual void Leave()
+                {
+
+                }
+                public virtual void Enter()
+                {
+
+                }
             }
         }
     }

@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<XnaContent>
+  <Asset Type="System.Collections.Generic.List[ImportTemplates.BlockRangeTemplate]">
+    <Item>
+      <startPosition>1,0,1</startPosition>
+      <endPosition>5,0,10</endPosition>
+      <Color>255,255,255,255</Color>
+      <Name>Ground</Name>
+      <Health>9999.0</Health>
+    </Item>
+  </Asset>
+</XnaContent>

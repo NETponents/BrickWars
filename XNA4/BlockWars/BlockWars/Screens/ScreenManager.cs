@@ -12,6 +12,8 @@ namespace BlockWars
         public class ScreenManager
         {
             List<Screen> screenList = new List<Screen>();
+
+            int currentIndex = 0;
             
             /// <summary>
             /// Default constructor for ScreenManager class.
@@ -30,7 +32,14 @@ namespace BlockWars
             {
                 get
                 {
-                    return screenList[index];
+                    try
+                    {
+                        return screenList[index];
+                    }
+                    catch(Exception e)
+                    {
+                        throw new ScreenNotFoundException("Screen index not found.", e);
+                    }
                 }
             }
             /// <summary>
@@ -49,7 +58,34 @@ namespace BlockWars
                             return i;
                         }
                     }
-                    throw new ScreenNotFoundException();
+                    throw new ScreenNotFoundException("Screen not found with specified search parameters.");
+                }
+            }
+
+            /// <summary>
+            /// Adds an instance of a screen to the screen collection.
+            /// </summary>
+            /// <param name="newScreen">Screen to add.</param>
+            /// <returns>Index of new screen.</returns>
+            public int addScreen(Screen newScreen)
+            {
+                screenList.Add(newScreen);
+                return screenList.Count;
+            }
+
+            /// <summary>
+            /// Sets a block to the specified screen index.
+            /// </summary>
+            /// <param name="index">Index of screen.</param>
+            public void setScreen(int index)
+            {
+                if (index < 0 || index >= screenList.Count)
+                {
+                    throw new ScreenNotFoundException("Screen index not found.");
+                }
+                else
+                {
+                    currentIndex = index;
                 }
             }
         }
