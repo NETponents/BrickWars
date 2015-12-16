@@ -15,8 +15,6 @@ using namespace Windows::System;
 using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
 
-// The DirectX 12 Application template is documented at http://go.microsoft.com/fwlink/?LinkID=613670&clcid=0x409
-
 // The main function is only used to initialize our IFrameworkView class.
 [Platform::MTAThread]
 int main(Platform::Array<Platform::String^>^)
@@ -50,14 +48,15 @@ void App::Initialize(CoreApplicationView^ applicationView)
 
 	CoreApplication::Resuming +=
 		ref new EventHandler<Platform::Object^>(this, &App::OnResuming);
+
+	// At this point we have access to the device. 
+	// We can create the device-dependent resources.
+	m_deviceResources = std::make_shared<DX::DeviceResources>();
 }
 
 // Called when the CoreWindow object is created (or re-created).
 void App::SetWindow(CoreWindow^ window)
 {
-	window->SizeChanged += 
-		ref new TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(this, &App::OnWindowSizeChanged);
-
 	window->VisibilityChanged +=
 		ref new TypedEventHandler<CoreWindow^, VisibilityChangedEventArgs^>(this, &App::OnVisibilityChanged);
 
@@ -66,14 +65,27 @@ void App::SetWindow(CoreWindow^ window)
 
 	DisplayInformation^ currentDisplayInformation = DisplayInformation::GetForCurrentView();
 
+	DisplayInformation::DisplayContentsInvalidated +=
+		ref new TypedEventHandler<DisplayInformation^, Object^>(this, &App::OnDisplayContentsInvalidated);
+
+#if !(WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
+	window->SizeChanged +=
+		ref new TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(this, &App::OnWindowSizeChanged);
+
 	currentDisplayInformation->DpiChanged +=
 		ref new TypedEventHandler<DisplayInformation^, Object^>(this, &App::OnDpiChanged);
 
 	currentDisplayInformation->OrientationChanged +=
 		ref new TypedEventHandler<DisplayInformation^, Object^>(this, &App::OnOrientationChanged);
 
-	DisplayInformation::DisplayContentsInvalidated +=
-		ref new TypedEventHandler<DisplayInformation^, Object^>(this, &App::OnDisplayContentsInvalidated);
+	// Disable all pointer visual feedback for better performance when touching.
+	// This is not supported on Windows Phone applications.
+	auto pointerVisualizationSettings = PointerVisualizationSettings::GetForCurrentView();
+	pointerVisualizationSettings->IsContactFeedbackEnabled = false; 
+	pointerVisualizationSettings->IsBarrelButtonFeedbackEnabled = false;
+#endif
+
+	m_deviceResources->SetWindow(window);
 }
 
 // Initializes scene resources, or loads a previously saved app state.
@@ -81,7 +93,7 @@ void App::Load(Platform::String^ entryPoint)
 {
 	if (m_main == nullptr)
 	{
-		m_main = std::unique_ptr<BlockWarsMain>(new BlockWarsMain());
+		m_main = std::unique_ptr<BlockWarsMain>(new BlockWarsMain(m_deviceResources));
 	}
 }
 
@@ -94,21 +106,12 @@ void App::Run()
 		{
 			CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
 
-			auto commandQueue = GetDeviceResources()->GetCommandQueue();
-			PIXBeginEvent(commandQueue, 0, L"Update");
-			{
-				m_main->Update();
-			}
-			PIXEndEvent(commandQueue);
+			m_main->Update();
 
-			PIXBeginEvent(commandQueue, 0, L"Render");
+			if (m_main->Render())
 			{
-				if (m_main->Render())
-				{
-					GetDeviceResources()->Present();
-				}
+				m_deviceResources->Present();
 			}
-			PIXEndEvent(commandQueue);
 		}
 		else
 		{
@@ -142,8 +145,9 @@ void App::OnSuspending(Platform::Object^ sender, SuspendingEventArgs^ args)
 
 	create_task([this, deferral]()
 	{
-		// TODO: Insert your code here.
-		m_main->OnSuspending();
+        m_deviceResources->Trim();
+
+		// Insert your code here.
 
 		deferral->Complete();
 	});
@@ -155,17 +159,10 @@ void App::OnResuming(Platform::Object^ sender, Platform::Object^ args)
 	// and state are persisted when resuming from suspend. Note that this event
 	// does not occur if the app was previously terminated.
 
-	// TODO: Insert your code here.
-	m_main->OnResuming();
+	// Insert your code here.
 }
 
 // Window event handlers.
-
-void App::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEventArgs^ args)
-{
-	GetDeviceResources()->SetLogicalSize(Size(sender->Bounds.Width, sender->Bounds.Height));
-	m_main->OnWindowSizeChanged();
-}
 
 void App::OnVisibilityChanged(CoreWindow^ sender, VisibilityChangedEventArgs^ args)
 {
@@ -177,41 +174,32 @@ void App::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args)
 	m_windowClosed = true;
 }
 
+#if !(WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
+void App::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEventArgs^ args)
+{
+	m_deviceResources->SetLogicalSize(Size(sender->Bounds.Width, sender->Bounds.Height));
+	m_main->CreateWindowSizeDependentResources();
+}
+#endif
+
 // DisplayInformation event handlers.
 
+void App::OnDisplayContentsInvalidated(DisplayInformation^ sender, Object^ args)
+{
+	m_deviceResources->ValidateDevice();
+}
+
+
+#if !(WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
 void App::OnDpiChanged(DisplayInformation^ sender, Object^ args)
 {
-	GetDeviceResources()->SetDpi(sender->LogicalDpi);
-	m_main->OnWindowSizeChanged();
+	m_deviceResources->SetDpi(sender->LogicalDpi);
+	m_main->CreateWindowSizeDependentResources();
 }
 
 void App::OnOrientationChanged(DisplayInformation^ sender, Object^ args)
 {
-	GetDeviceResources()->SetCurrentOrientation(sender->CurrentOrientation);
-	m_main->OnWindowSizeChanged();
+	m_deviceResources->SetCurrentOrientation(sender->CurrentOrientation);
+	m_main->CreateWindowSizeDependentResources();
 }
-
-void App::OnDisplayContentsInvalidated(DisplayInformation^ sender, Object^ args)
-{
-	GetDeviceResources()->ValidateDevice();
-}
-
-std::shared_ptr<DX::DeviceResources> App::GetDeviceResources()
-{
-	if (m_deviceResources != nullptr && m_deviceResources->IsDeviceRemoved())
-	{
-		// All references to the existing D3D device must be released before a new device
-		// can be created.
-
-		m_deviceResources = nullptr;
-		m_main->OnDeviceRemoved();
-	}
-
-	if (m_deviceResources == nullptr)
-	{
-		m_deviceResources = std::make_shared<DX::DeviceResources>();
-		m_deviceResources->SetWindow(CoreWindow::GetForCurrentThread());
-		m_main->CreateRenderers(m_deviceResources);
-	}
-	return m_deviceResources;
-}
+#endif

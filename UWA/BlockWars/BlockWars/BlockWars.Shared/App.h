@@ -12,33 +12,34 @@ namespace BlockWars
 	public:
 		App();
 
-		// IFrameworkView methods.
+		// IFrameworkView Methods.
 		virtual void Initialize(Windows::ApplicationModel::Core::CoreApplicationView^ applicationView);
 		virtual void SetWindow(Windows::UI::Core::CoreWindow^ window);
 		virtual void Load(Platform::String^ entryPoint);
 		virtual void Run();
 		virtual void Uninitialize();
 
-	protected:
+protected:
 		// Application lifecycle event handlers.
 		void OnActivated(Windows::ApplicationModel::Core::CoreApplicationView^ applicationView, Windows::ApplicationModel::Activation::IActivatedEventArgs^ args);
 		void OnSuspending(Platform::Object^ sender, Windows::ApplicationModel::SuspendingEventArgs^ args);
 		void OnResuming(Platform::Object^ sender, Platform::Object^ args);
 
 		// Window event handlers.
+#if !(WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
 		void OnWindowSizeChanged(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::WindowSizeChangedEventArgs^ args);
+#endif
 		void OnVisibilityChanged(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::VisibilityChangedEventArgs^ args);
 		void OnWindowClosed(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::CoreWindowEventArgs^ args);
 
 		// DisplayInformation event handlers.
+#if !(WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
 		void OnDpiChanged(Windows::Graphics::Display::DisplayInformation^ sender, Platform::Object^ args);
 		void OnOrientationChanged(Windows::Graphics::Display::DisplayInformation^ sender, Platform::Object^ args);
+#endif
 		void OnDisplayContentsInvalidated(Windows::Graphics::Display::DisplayInformation^ sender, Platform::Object^ args);
 
 	private:
-		// Private accessor for m_deviceResources, protects against device removed errors.
-		std::shared_ptr<DX::DeviceResources> GetDeviceResources();
-
 		std::shared_ptr<DX::DeviceResources> m_deviceResources;
 		std::unique_ptr<BlockWarsMain> m_main;
 		bool m_windowClosed;
