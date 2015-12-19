@@ -191,6 +191,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\lightclass.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\lightshaderclass.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\main.cpp"
 				>
 			</File>
@@ -200,6 +208,14 @@
 			</File>
 			<File
 				RelativePath=".\systemclass.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\textureclass.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\textureshaderclass.cpp"
 				>
 			</File>
 		</Filter>
@@ -229,11 +245,27 @@
 				>
 			</File>
 			<File
+				RelativePath=".\lightclass.h"
+				>
+			</File>
+			<File
+				RelativePath=".\lightshaderclass.h"
+				>
+			</File>
+			<File
 				RelativePath=".\modelclass.h"
 				>
 			</File>
 			<File
 				RelativePath=".\systemclass.h"
+				>
+			</File>
+			<File
+				RelativePath=".\textureclass.h"
+				>
+			</File>
+			<File
+				RelativePath=".\textureshaderclass.h"
 				>
 			</File>
 		</Filter>
@@ -248,6 +280,22 @@
 			</File>
 			<File
 				RelativePath=".\color.vs"
+				>
+			</File>
+			<File
+				RelativePath=".\light.ps"
+				>
+			</File>
+			<File
+				RelativePath=".\light.vs"
+				>
+			</File>
+			<File
+				RelativePath=".\texture.ps"
+				>
+			</File>
+			<File
+				RelativePath=".\texture.vs"
 				>
 			</File>
 		</Filter>
