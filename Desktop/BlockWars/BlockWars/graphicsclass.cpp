@@ -59,7 +59,8 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Initialize the model object.
-	result = m_Model->Initialize(m_D3D->GetDevice(), "./Content/cube.txt", L"./Content/tex002.dds");
+	D3DXVECTOR3 m_posOffset = D3DXVECTOR3(2.0f, 0.0f, 2.0f);
+	result = m_Model->Initialize(m_D3D->GetDevice(), "./Content/cube.txt", L"./Content/tex002.dds", m_posOffset);
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);

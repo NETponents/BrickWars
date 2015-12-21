@@ -34,7 +34,7 @@ public:
 	ModelClass();
 	ModelClass(const ModelClass&);
 	~ModelClass();
-	bool Initialize(ID3D11Device*, char*, WCHAR*);
+	bool Initialize(ID3D11Device*, char*, WCHAR*, D3DXVECTOR3);
 	void Shutdown();
 	void Render(ID3D11DeviceContext*);
 	int GetIndexCount();
@@ -46,7 +46,7 @@ private:
 	void RenderBuffers(ID3D11DeviceContext*);
 	bool LoadTexture(ID3D11Device*, WCHAR*);
 	void ReleaseTexture();
-	bool LoadModel(char*);
+	bool LoadModel(char*, D3DXVECTOR3);
 	void ReleaseModel();
 private:
 	ID3D11Buffer *m_vertexBuffer, *m_indexBuffer;

@@ -17,12 +17,12 @@ ModelClass::~ModelClass()
 {
 }
 
-bool ModelClass::Initialize(ID3D11Device* device, char* modelFilename, WCHAR* textureFilename)
+bool ModelClass::Initialize(ID3D11Device* device, char* modelFilename, WCHAR* textureFilename, D3DXVECTOR3 posOffset)
 {
 	bool result;
 
 	// Load in the model data,
-	result = LoadModel(modelFilename);
+	result = LoadModel(modelFilename, posOffset);
 	if(!result)
 	{
 		return false;
@@ -232,7 +232,7 @@ void ModelClass::ReleaseTexture()
 	return;
 }
 
-bool ModelClass::LoadModel(char* filename)
+bool ModelClass::LoadModel(char* filename, D3DXVECTOR3 posOffset)
 {
 	ifstream fin;
 	char input;
@@ -281,6 +281,10 @@ bool ModelClass::LoadModel(char* filename)
 	for(i=0; i<m_vertexCount; i++)
 	{
 		fin >> m_model[i].x >> m_model[i].y >> m_model[i].z;
+		// Apply offset
+		m_model[i].x += posOffset.x;
+		m_model[i].y += posOffset.y;
+		m_model[i].z += posOffset.z;
 		fin >> m_model[i].tu >> m_model[i].tv;
 		fin >> m_model[i].nx >> m_model[i].ny >> m_model[i].nz;
 	}
